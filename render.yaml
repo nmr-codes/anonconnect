@@ -1,6 +1,13 @@
 version: "1"
 
 services:
+  # Managed Redis Instance
+  - type: redis
+    name: anonconnect-redis-bp
+    region: ohio
+    plan: free
+    ipAllowList: [] # empty means only internal access
+
   # The FastAPI Backend
   - type: web
     name: anonconnect-backend
@@ -31,10 +38,3 @@ databases:
   - name: anonconnect-db-bp
     region: ohio
     plan: free
-
-  # Managed Redis Instance
-  - type: redis
-    name: anonconnect-redis-bp
-    region: ohio
-    plan: free
-    ipAllowList: [] # empty means only internal access
