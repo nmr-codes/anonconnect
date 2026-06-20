@@ -111,12 +111,12 @@ async def find_match(uid: str, my_profile: dict) -> Optional[str]:
     if best_score > 0:
         return best_uid
 
-    # No matches. Enforce a 10-second wait before allowing a 0-score match
+    # No matches. Enforce a 5-second wait before allowing a 0-score match
     # Find the candidate who has waited the longest
     oldest_candidate = min(scored, key=lambda x: x[2])
     wait_time = time.time() - oldest_candidate[2]
     
-    if wait_time > 10.0:
+    if wait_time > 5.0:
         return oldest_candidate[1]
         
     return None
