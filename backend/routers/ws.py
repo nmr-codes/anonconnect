@@ -182,10 +182,10 @@ async def websocket_endpoint(
                 })
 
                 # Send to sender (as "me")
-                await send_json(websocket, {**message_data, "sender": "me"})
+                await send_json(websocket, {**message_data, "type": "message", "sender": "me"})
 
                 # Send to partner (as "stranger")
-                await send_to_user(partner_uid, {**message_data, "sender": "stranger"})
+                await send_to_user(partner_uid, {**message_data, "type": "message", "sender": "stranger"})
 
             # ── Typing ────────────────────────────────────
             elif msg_type == "typing":
