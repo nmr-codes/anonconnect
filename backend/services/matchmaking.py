@@ -84,8 +84,8 @@ async def find_match(uid: str, my_profile: dict) -> Optional[str]:
         # 1. Language Exchange Bonus (+50)
         their_native = their_profile.get("native_language")
         their_learning = their_profile.get("learning_language")
-        if (my_native and their_learning and my_native == their_learning) and \
-           (my_learning and their_native and my_learning == their_native):
+        if (my_native and my_native != "None" and their_learning and their_learning != "None" and my_native == their_learning) and \
+           (my_learning and my_learning != "None" and their_native and their_native != "None" and my_learning == their_native):
             score += 50
             
         # 2. Shared Interests (+10 each)

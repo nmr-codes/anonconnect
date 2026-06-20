@@ -18,9 +18,9 @@ from services.matchmaking import (
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-# Global connection registry: uid → WebSocket
+# Global connection registry: uid → set[WebSocket]
 # For multi-instance deployments, replace with Redis Pub/Sub
-active_connections: dict[str, WebSocket] = {}
+active_connections: dict[str, set[WebSocket]] = {}
 
 
 async def send_json(ws: WebSocket, data: dict) -> None:
@@ -32,9 +32,10 @@ async def send_json(ws: WebSocket, data: dict) -> None:
 
 
 async def send_to_user(uid: str, data: dict) -> None:
-    ws = active_connections.get(uid)
-    if ws:
-        await send_json(ws, data)
+    wss = active_connections.get(uid)
+    if wss:
+        for ws in list(wss):
+            await send_json(ws, data)
 
 
 async def broadcast_queue_count() -> None:
@@ -63,22 +64,49 @@ async def websocket_endpoint(
         return
 
     await websocket.accept()
-    active_connections[uid] = websocket
+    if uid not in active_connections:
+        active_connections[uid] = set()
+    active_connections[uid].add(websocket)
+    
     await redis_service.set_online(uid)
     logger.info(f"WS connected: {uid}")
-
-    # Send welcome
-    await send_json(websocket, {
-        "type": "connected",
-        "user": profile.model_dump(),
-        "online_count": await redis_service.online_count(),
-    })
 
     # State for this connection
     current_session_id: Optional[str] = None
     partner_uid: Optional[str] = None
     searching: bool = False
     heartbeat_task: Optional[asyncio.Task] = None
+
+    # Check for active session for seamless reconnection
+    sid = await redis_service.get_user_session(uid)
+    if sid:
+        sdata = await redis_service.get_session(sid)
+        if sdata:
+            current_session_id = sid
+            partner_uid = sdata["uid2"] if sdata["uid1"] == uid else sdata["uid1"]
+            
+            partner_profile = await get_user_profile(partner_uid)
+            partner_public = make_public_profile(partner_profile).model_dump() if partner_profile else {}
+            
+            from services.db_service import db_service
+            history = await db_service.get_messages(current_session_id, limit=50)
+            
+            await send_json(websocket, {
+                "type": "reconnected",
+                "session_id": current_session_id,
+                "partner": partner_public,
+                "messages": history,
+                "user": profile.model_dump(),
+                "online_count": await redis_service.online_count(),
+            })
+    
+    if not current_session_id:
+        # Normal welcome
+        await send_json(websocket, {
+            "type": "connected",
+            "user": profile.model_dump(),
+            "online_count": await redis_service.online_count(),
+        })
 
     async def heartbeat():
         while True:
@@ -260,15 +288,21 @@ async def websocket_endpoint(
         logger.exception(f"WS error for {uid}: {e}")
     finally:
         # Cleanup
+        searching = False  # Critical: Kill orphaned matchmaking loops
         if heartbeat_task:
             heartbeat_task.cancel()
-        active_connections.pop(uid, None)
-        await redis_service.set_offline(uid)
-        await remove_from_queue(uid)
-
-        if current_session_id and partner_uid:
-            await end_session(current_session_id)
-            await send_to_user(partner_uid, {"type": "partner_left"})
+            
+        if uid in active_connections:
+            active_connections[uid].discard(websocket)
+            if not active_connections[uid]:
+                del active_connections[uid]
+                await redis_service.set_offline(uid)
+                await remove_from_queue(uid)
+                
+                # Only end session if all devices disconnected
+                if current_session_id and partner_uid:
+                    await end_session(current_session_id)
+                    await send_to_user(partner_uid, {"type": "partner_left"})
 
         await broadcast_queue_count()
         logger.info(f"WS cleanup done: {uid}")

@@ -128,9 +128,9 @@ class RedisService:
         }
         pipe = self.client.pipeline()
         pipe.hset(f"session:{session_id}", mapping=data)
-        pipe.expire(f"session:{session_id}", 3600)  # 1 hour TTL
-        pipe.set(f"user_session:{uid1}", session_id, ex=3600)
-        pipe.set(f"user_session:{uid2}", session_id, ex=3600)
+        pipe.expire(f"session:{session_id}", 86400)  # 24 hours TTL
+        pipe.set(f"user_session:{uid1}", session_id, ex=86400)
+        pipe.set(f"user_session:{uid2}", session_id, ex=86400)
         await pipe.execute()
 
     async def get_session(self, session_id: str) -> Optional[dict[str, Any]]:

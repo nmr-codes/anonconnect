@@ -90,6 +90,25 @@ export default function ChatPage() {
       }]);
     });
 
+    const offReconnected = socket.on("reconnected", (e) => {
+      setChatState("chatting");
+      setPartner((e.partner as PartnerInfo) || null);
+      setSessionId((e.session_id as string) || null);
+      setTotalChats((t) => Math.max(t, 1));
+      
+      const loadedMessages: Message[] = (e.messages as any[] || []).map((m: any) => ({
+        id: m.id,
+        text: m.text,
+        sender: m.sender_uid === profile.uid ? "me" : "stranger",
+        timestamp: m.timestamp * 1000,
+      }));
+      
+      setMessages([
+        { id: "sys-reconnected", text: "🔄 Reconnected to active chat.", sender: "system", timestamp: Date.now() - 1000 },
+        ...loadedMessages
+      ]);
+    });
+
     const offMsg = socket.on("message", (e) => {
       setMessages((prev) => {
         const exists = prev.find((m) => m.id === e.id);
@@ -150,7 +169,7 @@ export default function ChatPage() {
     });
 
     return () => {
-      offConnected(); offQueue(); offMatched(); offMsg();
+      offConnected(); offQueue(); offMatched(); offReconnected(); offMsg();
       offTyping(); offReaction(); offLeft(); offEnded();
       offCancelled(); offSearching(); offError();
     };
