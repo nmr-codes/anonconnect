@@ -32,6 +32,8 @@ services:
         value: "https://anonconnect-alpha.vercel.app"
       - key: DEBUG
         value: "False"
+      - key: GOOGLE_CLIENT_ID
+        value: "500724399689-1jkl9pmjv2qu775108qev1n279d5mjga.apps.googleusercontent.com"
 
 databases:
   # Managed PostgreSQL Database
