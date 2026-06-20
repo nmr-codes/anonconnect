@@ -122,19 +122,30 @@ async def find_match(uid: str, my_profile: dict) -> Optional[str]:
     return None
 
 
-async def create_session(uid1: str, uid2: str) -> ChatSession:
-    session = ChatSession(
-        session_id=str(uuid.uuid4()),
-        uid1=uid1,
-        uid2=uid2,
-    )
-    # Remove both from queue
-    await redis_service.leave_queue(uid1)
-    await redis_service.leave_queue(uid2)
-    # Store session
-    await redis_service.create_session(session.session_id, uid1, uid2)
-    logger.info(f"Session {session.session_id} created: {uid1} ↔ {uid2}")
-    return session
+async def try_create_session(uid1: str, uid2: str) -> Optional[ChatSession]:
+    # Atomically check if both are in queue, and if so, remove them.
+    script = """
+    local score1 = redis.call('ZSCORE', 'queue', KEYS[1])
+    local score2 = redis.call('ZSCORE', 'queue', KEYS[2])
+    if score1 and score2 then
+        redis.call('ZREM', 'queue', KEYS[1])
+        redis.call('ZREM', 'queue', KEYS[2])
+        return 1
+    end
+    return 0
+    """
+    res = await redis_service.client.eval(script, 2, uid1, uid2)
+    if res == 1:
+        session = ChatSession(
+            session_id=str(uuid.uuid4()),
+            uid1=uid1,
+            uid2=uid2,
+        )
+        # Store session
+        await redis_service.create_session(session.session_id, uid1, uid2)
+        logger.info(f"Session {session.session_id} created: {uid1} ↔ {uid2}")
+        return session
+    return None
 
 
 async def end_session(session_id: str) -> Optional[tuple[str, str]]:

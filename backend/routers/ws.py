@@ -11,7 +11,7 @@ from services.auth_service import decode_access_token, get_user_profile
 from services.redis_service import redis_service
 from services.matchmaking import (
     add_to_queue, remove_from_queue, find_match,
-    create_session, end_session, get_queue_count,
+    try_create_session, end_session, get_queue_count,
     get_random_ice_breaker, get_common_interests, make_public_profile,
 )
 
@@ -127,35 +127,47 @@ async def websocket_endpoint(
                 await send_json(websocket, {"type": "searching", "queue_count": count})
                 await broadcast_queue_count()
 
-                # Try to find a match immediately
-                match_uid = await find_match(uid, public_profile)
-                if match_uid:
-                    session = await create_session(uid, match_uid)
-                    current_session_id = session.session_id
-                    partner_uid = match_uid
-                    searching = False
+                async def matchmaking_loop():
+                    nonlocal current_session_id, partner_uid, searching
+                    while searching:
+                        try:
+                            # Try to find a match
+                            match_uid = await find_match(uid, public_profile)
+                            if match_uid:
+                                session = await try_create_session(uid, match_uid)
+                                if session:
+                                    current_session_id = session.session_id
+                                    partner_uid = match_uid
+                                    searching = False
 
-                    # Load partner profile
-                    partner_profile = await get_user_profile(match_uid)
-                    common = get_common_interests(my_interests, partner_profile.interests if partner_profile else [])
-                    ice = get_random_ice_breaker()
-                    partner_public = make_public_profile(partner_profile).model_dump() if partner_profile else {}
+                                    # Load partner profile
+                                    partner_profile = await get_user_profile(match_uid)
+                                    common = get_common_interests(my_interests, partner_profile.interests if partner_profile else [])
+                                    ice = get_random_ice_breaker()
+                                    partner_public = make_public_profile(partner_profile).model_dump() if partner_profile else {}
 
-                    match_payload = {
-                        "type": "matched",
-                        "session_id": session.session_id,
-                        "partner": partner_public,
-                        "common_interests": common,
-                        "ice_breaker": ice,
-                    }
+                                    match_payload = {
+                                        "type": "matched",
+                                        "session_id": session.session_id,
+                                        "partner": partner_public,
+                                        "common_interests": common,
+                                        "ice_breaker": ice,
+                                    }
 
-                    # Notify both
-                    await send_json(websocket, match_payload)
-                    await send_to_user(match_uid, {
-                        **match_payload,
-                        "partner": make_public_profile(profile).model_dump(),
-                    })
-                    await broadcast_queue_count()
+                                    # Notify both
+                                    await send_json(websocket, match_payload)
+                                    await send_to_user(match_uid, {
+                                        **match_payload,
+                                        "partner": make_public_profile(profile).model_dump(),
+                                    })
+                                    await broadcast_queue_count()
+                                    break
+                        except Exception as e:
+                            logger.error(f"Matchmaking error for {uid}: {e}")
+                        
+                        await asyncio.sleep(1.0)
+                
+                asyncio.create_task(matchmaking_loop())
 
             # ── Cancel Match ──────────────────────────────
             elif msg_type == "cancel_match":
