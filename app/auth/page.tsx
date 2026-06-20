@@ -145,7 +145,7 @@ export default function AuthPage() {
         </p>
 
         {/* Tab Selector */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 32, background: "var(--bg-card-2)", padding: 4, borderRadius: "var(--radius-md)" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 32, background: "var(--bg-card-2)", padding: 4 }}>
           <button 
             className={`btn ${authMode === "login" ? "btn-primary" : "btn-ghost"}`} 
             style={{ flex: 1, padding: "8px 0" }}
@@ -165,7 +165,7 @@ export default function AuthPage() {
         </div>
 
         {errorMsg && (
-          <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 16, padding: "10px", background: "rgba(255, 74, 74, 0.05)", border: "1px solid rgba(255, 74, 74, 0.2)", borderRadius: "var(--radius-sm)" }}>
+          <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 16, padding: "10px", background: "rgba(255, 74, 74, 0.05)", border: "1px solid rgba(255, 74, 74, 0.2)" }}>
             {errorMsg}
           </div>
         )}

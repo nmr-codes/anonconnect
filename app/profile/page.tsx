@@ -136,7 +136,7 @@ export default function ProfilePage() {
               </div>
               <div className="form-group">
                 <label className="form-label">Bio</label>
-                <textarea className="form-input" value={bio} onChange={(e) => setBio(e.target.value)} maxLength={300} rows={3} style={{ resize: "vertical", borderRadius: "var(--radius-md)" }} />
+                <textarea className="form-input" value={bio} onChange={(e) => setBio(e.target.value)} maxLength={300} rows={3} style={{ resize: "vertical" }} />
               </div>
             </>
           ) : (

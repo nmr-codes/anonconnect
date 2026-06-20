@@ -258,8 +258,7 @@ export default function ChatPage() {
             {totalChats > 0 && (
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
-                background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)",
-                borderRadius: "var(--radius-full)", padding: "6px 16px",
+                background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", padding: "6px 16px",
                 fontSize: 13, color: "var(--accent-2)", marginBottom: 24,
               }}>
                 🔥 {totalChats} chat{totalChats > 1 ? "s" : ""} this session
@@ -273,7 +272,7 @@ export default function ChatPage() {
               <div style={{ marginTop: 24, display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
                 {profile.interests.slice(0, 6).map((i) => (
                   <span key={i} style={{
-                    padding: "4px 12px", borderRadius: "var(--radius-full)",
+                    padding: "4px 12px",
                     background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)",
                     fontSize: 12, color: "var(--primary-light)",
                   }}>{i}</span>

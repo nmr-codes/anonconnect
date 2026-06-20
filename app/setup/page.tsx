@@ -206,7 +206,7 @@ export default function SetupPage() {
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={300}
                   rows={3}
-                  style={{ resize: "vertical", borderRadius: "var(--radius-md)" }}
+                  style={{ resize: "vertical" }}
                 />
               </div>
               <div className="form-group">
@@ -218,7 +218,7 @@ export default function SetupPage() {
                       type="button"
                       id={`looking-${opt.split(" ")[0].toLowerCase()}`}
                       className={`btn ${lookingFor === opt ? "btn-primary" : "btn-ghost"}`}
-                      style={{ justifyContent: "flex-start", borderRadius: "var(--radius-md)" }}
+                      style={{ justifyContent: "flex-start" }}
                       onClick={() => setLookingFor(opt)}
                     >
                       {opt}
