@@ -46,6 +46,8 @@ def make_public_profile(profile: UserProfile) -> PublicProfile:
     return PublicProfile(
         age=profile.age,
         gender=profile.gender,
+        native_language=profile.native_language,
+        learning_language=profile.learning_language,
         interests=profile.interests,
         looking_for=profile.looking_for,
     )
@@ -79,6 +81,11 @@ async def find_match(uid: str, my_profile: dict) -> Optional[str]:
     
     for candidate_uid, joined_at in candidates:
         their_profile = await redis_service.get_queue_profile(candidate_uid)
+        if not their_profile:
+            # Ghost user! Clean up.
+            await redis_service.leave_queue(candidate_uid)
+            continue
+            
         score = 0
         
         # 1. Language Exchange Bonus (+50)

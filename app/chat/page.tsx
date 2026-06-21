@@ -117,7 +117,7 @@ export default function ChatPage() {
           id: e.id as string,
           text: e.text as string,
           sender: e.sender as "me" | "stranger",
-          timestamp: e.timestamp as number,
+          timestamp: (e.timestamp as number) * 1000,
         }];
       });
     });
@@ -371,7 +371,7 @@ export default function ChatPage() {
               ) : (
                 <MessageBubble
                   key={msg.id}
-                  message={{ id: msg.id, text: msg.text, senderId: msg.sender === "me" ? "me" : "stranger", timestamp: msg.timestamp * 1000, reaction: msg.reaction }}
+                  message={{ id: msg.id, text: msg.text, senderId: msg.sender === "me" ? "me" : "stranger", timestamp: msg.timestamp, reaction: msg.reaction }}
                   isOwn={msg.sender === "me"}
                   onReact={handleReact}
                 />
