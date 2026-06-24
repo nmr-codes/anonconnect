@@ -58,7 +58,7 @@ pip install -r requirements.txt
 
 ### 3 — Frontend Setup
 ```bash
-# In the anonconnect/ root
+# In the project root
 cp .env.local.example .env.local
 # Edit .env.local → set NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
@@ -138,7 +138,7 @@ Open **http://localhost:3000**
 
 ## Project Structure
 ```
-anonconnect/
+LingoGen/
 ├── app/                    ← Next.js pages (App Router)
 │   ├── page.tsx            ← Landing page
 │   ├── auth/page.tsx       ← Google Sign-In

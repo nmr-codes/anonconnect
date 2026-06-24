@@ -34,23 +34,23 @@ The new matchmaking system will score potential partners based on a combination 
 
 ### Database & Backend Models
 
-#### [MODIFY] [models/user.py](file:///home/lazy/Desktop/LingoGen/anonconnect/backend/models/user.py)
+#### [MODIFY] [models/user.py](file:///home/lazy/Desktop/LingoGen/backend/models/user.py)
 - Add `native_language: Optional[str]` and `learning_language: Optional[str]` to `UserProfile`, `UserProfileUpdate`, and `PublicProfile`.
 
-#### [MODIFY] [models/db_models.py](file:///home/lazy/Desktop/LingoGen/anonconnect/backend/models/db_models.py)
+#### [MODIFY] [models/db_models.py](file:///home/lazy/Desktop/LingoGen/backend/models/db_models.py)
 - Add `native_language` and `learning_language` String columns to `UserDB`.
 
-#### [MODIFY] [services/db_service.py](file:///home/lazy/Desktop/LingoGen/anonconnect/backend/services/db_service.py)
+#### [MODIFY] [services/db_service.py](file:///home/lazy/Desktop/LingoGen/backend/services/db_service.py)
 - Update `get_user` to return the new language fields.
 
 ---
 
 ### Matchmaking Engine
 
-#### [MODIFY] [services/redis_service.py](file:///home/lazy/Desktop/LingoGen/anonconnect/backend/services/redis_service.py)
+#### [MODIFY] [services/redis_service.py](file:///home/lazy/Desktop/LingoGen/backend/services/redis_service.py)
 - Update `join_queue` to accept and store the entire `PublicProfile` payload instead of just a list of interests, so the matcher can calculate age, intent, and language scores instantly.
 
-#### [MODIFY] [services/matchmaking.py](file:///home/lazy/Desktop/LingoGen/anonconnect/backend/services/matchmaking.py)
+#### [MODIFY] [services/matchmaking.py](file:///home/lazy/Desktop/LingoGen/backend/services/matchmaking.py)
 - Implement the weighted scoring algorithm inside `find_match`.
 - Add the 10-second wait threshold logic: check the user's queue entry timestamp, and only allow 0-score matches if they have been waiting for > 10 seconds.
 
@@ -58,10 +58,10 @@ The new matchmaking system will score potential partners based on a combination 
 
 ### Frontend Setup & Chat
 
-#### [MODIFY] [app/setup/page.tsx](file:///home/lazy/Desktop/LingoGen/anonconnect/app/setup/page.tsx)
+#### [MODIFY] [app/setup/page.tsx](file:///home/lazy/Desktop/LingoGen/app/setup/page.tsx)
 - Add a new setup step for users to select their Native Language and the Language they want to learn (or "None" if they just want to chat).
 
-#### [MODIFY] [app/chat/page.tsx](file:///home/lazy/Desktop/LingoGen/anonconnect/app/chat/page.tsx)
+#### [MODIFY] [app/chat/page.tsx](file:///home/lazy/Desktop/LingoGen/app/chat/page.tsx)
 - Update the chat header to display the matched languages alongside common interests (e.g., "Teaching Spanish, Learning English").
 
 ## Verification Plan
