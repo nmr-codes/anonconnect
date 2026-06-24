@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "../components/AuthProvider";
 import Navbar from "../components/Navbar";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "LingoGen — Interactive Language Exchange Matchmaking",
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
           <main className="page-wrapper">{children}</main>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
