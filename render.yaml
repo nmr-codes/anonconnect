@@ -29,7 +29,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: "https://lingogen.vercel.app"
+        value: "https://lingo-gen-rho.vercel.app"
       - key: DEBUG
         value: "False"
       - key: GOOGLE_CLIENT_ID
