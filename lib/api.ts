@@ -18,7 +18,11 @@ async function apiFetch<T>(
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
   if (!res.ok) {
-    if ((res.status === 401 || res.status === 403) && typeof window !== "undefined") {
+    if (
+      (res.status === 401 || res.status === 403) &&
+      !path.startsWith("/auth") &&
+      typeof window !== "undefined"
+    ) {
       localStorage.removeItem("ac_token");
       window.location.href = "/auth";
       return new Promise(() => {}); // Halt execution while navigating

@@ -92,13 +92,21 @@ export default function LandingPage() {
 
   const handleStart = async () => {
     if (profile) {
-      router.push("/chat");
+      if (profile.onboarded) {
+        router.push("/chat");
+      } else {
+        router.push("/setup");
+      }
     } else {
       setIsLoggingIn(true);
       try {
         const data = await loginAsGuest();
         setAuth(data.user, data.access_token);
-        router.push("/chat");
+        if (data.user.onboarded) {
+          router.push("/chat");
+        } else {
+          router.push("/setup");
+        }
       } catch (err) {
         console.error("Guest login failed:", err);
         router.push("/auth");

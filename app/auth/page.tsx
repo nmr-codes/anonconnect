@@ -73,7 +73,11 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (!loading && profile && !profile.is_guest) {
-      router.replace("/chat");
+      if (profile.onboarded) {
+        router.replace("/chat");
+      } else {
+        router.replace("/setup");
+      }
     }
   }, [profile, loading, router]);
 
@@ -146,7 +150,11 @@ export default function AuthPage() {
     try {
       const data = await loginWithGoogle(response.credential, authModeRef.current);
       setAuth(data.user, data.access_token);
-      router.replace("/chat");
+      if (data.user.onboarded) {
+        router.replace("/chat");
+      } else {
+        router.replace("/setup");
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "Google authentication failed. Please try again.");
     }
@@ -236,7 +244,11 @@ export default function AuthPage() {
     try {
       const data = await loginWithEmail(loginEmail, loginPassword);
       setAuth(data.user, data.access_token);
-      router.replace("/chat");
+      if (data.user.onboarded) {
+        router.replace("/chat");
+      } else {
+        router.replace("/setup");
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "Authentication failed. Please try again.");
     } finally {
