@@ -35,9 +35,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+origins = ["http://localhost:3000"]
+if settings.frontend_url:
+    origins.append(settings.frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url, "http://localhost:3000"],
+    allow_origins=origins,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?|https://.*\.vercel\.app|https://(www\.)?lingogen\.me",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
