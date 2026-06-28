@@ -33,7 +33,7 @@ services:
       - key: DEBUG
         value: "False"
       - key: GOOGLE_CLIENT_ID
-        value: "500724399689-1jkl9pmjv2qu775108qev1n279d5mjga.apps.googleusercontent.com"
+        value: "500724399689-mpacp2vi4i7pcg435010b2js5v3pke3t.apps.googleusercontent.com"
 
 databases:
   # Managed PostgreSQL Database
