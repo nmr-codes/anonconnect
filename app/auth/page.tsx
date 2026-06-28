@@ -261,7 +261,7 @@ export default function AuthPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card animate-slide-up" style={{ background: "rgba(11, 19, 41, 0.75)" }}>
+      <div className="auth-card animate-slide-up">
         <h1 className="auth-title" style={{ background: "var(--gradient)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
           LingoGen
         </h1>
